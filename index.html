@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoadPay — Payments That Just Work</title>
+<meta name="description" content="RoadPay by BlackRoad OS. Stripe-powered payments for 135+ currencies. Subscriptions, invoicing, fraud detection. From free to enterprise.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gradient: linear-gradient(135deg, #FF6B2B, #00D4FF);
+    --bg: #000;
+    --surface: #0a0a0a;
+    --border: #1a1a1a;
+    --text: #e0e0e0;
+    --text-muted: #888;
+    --white: #fff;
+    --orange: #FF6B2B;
+    --cyan: #00D4FF;
+    --green: #00E676;
+    --red: #FF5252;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  a { color: var(--cyan); text-decoration: none; transition: opacity 0.2s; }
+  a:hover { opacity: 0.8; }
+
+  .gradient-text {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(0,0,0,0.9);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .logo { font-weight: 700; font-size: 1.25rem; }
+  nav .links { display: flex; gap: 2rem; font-size: 0.9rem; }
+  nav .links a { color: var(--text-muted); }
+  nav .links a:hover { color: var(--white); }
+  .cta-btn {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    background: var(--gradient);
+    color: #000;
+    font-weight: 600;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none; cursor: pointer;
+  }
+  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,107,43,0.3); }
+  .cta-btn-outline {
+    display: inline-block;
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    color: var(--white);
+    font-weight: 600;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .cta-btn-outline:hover { border-color: var(--cyan); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,107,43,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: var(--white);
+  }
+  .hero p {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    max-width: 640px;
+    margin-bottom: 2.5rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+  /* SECTION */
+  section { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--orange);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+  .section-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: #333; }
+  .card-icon {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+    background: rgba(255,107,43,0.1);
+    border: 1px solid rgba(255,107,43,0.2);
+  }
+  .card h3 { font-size: 1.15rem; font-weight: 600; color: var(--white); margin-bottom: 0.5rem; }
+  .card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 4rem 0;
+  }
+  .stat {
+    text-align: center;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .stat-label { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .price-card:hover { border-color: #333; }
+  .price-card.featured { border-color: var(--orange); }
+  .price-card.featured::before {
+    content: 'Most Popular';
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    padding: 0.25rem 1rem;
+    background: var(--gradient);
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 100px;
+  }
+  .price-card .tier { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .price-card .price { font-size: 2.5rem; font-weight: 700; color: var(--white); margin-bottom: 0.25rem; }
+  .price-card .price span { font-size: 1rem; font-weight: 400; color: var(--text-muted); }
+  .price-card .rate { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--cyan); margin-bottom: 1.5rem; }
+  .price-card ul { list-style: none; margin-bottom: 2rem; }
+  .price-card li { padding: 0.4rem 0; color: var(--text); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .price-card li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .price-card .cta-btn, .price-card .cta-btn-outline { width: 100%; text-align: center; }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  .code-block .comment { color: #555; }
+  .code-block .keyword { color: var(--orange); }
+  .code-block .string { color: var(--cyan); }
+  .code-block .func { color: #E040FB; }
+  .code-block .number { color: var(--green); }
+
+  /* FEATURES DETAIL */
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-bottom: 6rem;
+  }
+  .feature-row:nth-child(even) { direction: rtl; }
+  .feature-row:nth-child(even) > * { direction: ltr; }
+  .feature-visual {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .feature-content h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+  .feature-content p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+  }
+  .feature-list { list-style: none; }
+  .feature-list li {
+    padding: 0.5rem 0;
+    color: var(--text);
+    font-size: 0.95rem;
+    display: flex; align-items: flex-start; gap: 0.75rem;
+  }
+  .feature-list li::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gradient);
+    flex-shrink: 0;
+    margin-top: 0.5rem;
+  }
+
+  /* INTEGRATION LOGOS */
+  .integrations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+  .integration-badge {
+    padding: 0.6rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: var(--surface);
+  }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2.5rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem; top: 0.5rem;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gradient);
+    margin-left: -4px;
+  }
+  .timeline-item h4 { font-size: 1rem; color: var(--white); margin-bottom: 0.25rem; }
+  .timeline-item .date { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--orange); margin-bottom: 0.5rem; }
+  .timeline-item p { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* FAQ */
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1rem;
+    background: var(--surface);
+  }
+  .faq-item h4 { color: var(--white); font-size: 1rem; margin-bottom: 0.5rem; }
+  .faq-item p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--text-muted); }
+  footer .footer-links { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+
+  /* CTA BANNER */
+  .cta-banner {
+    text-align: center;
+    padding: 6rem 2rem;
+    position: relative;
+  }
+  .cta-banner::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-banner h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: var(--white); margin-bottom: 1rem; }
+  .cta-banner p { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto 2rem; }
+
+  /* TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+  }
+  .compare-table th, .compare-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .compare-table th { color: var(--white); font-weight: 600; }
+  .compare-table td { color: var(--text-muted); }
+  .compare-table .check { color: var(--green); }
+  .compare-table .cross { color: var(--red); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav .links { display: none; }
+    .feature-row, .feature-row:nth-child(even) { grid-template-columns: 1fr; direction: ltr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    section { padding: 4rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo"><span class="gradient-text">RoadPay</span></div>
+  <div class="links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#integrations">Integrations</a>
+    <a href="#docs">Docs</a>
+    <a href="#roadmap">Roadmap</a>
+  </div>
+  <a href="#pricing" class="cta-btn">Get Started</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge mono">BlackRoad OS / Payments Infrastructure</div>
+  <h1>Payments That<br><span class="gradient-text">Just Work.</span></h1>
+  <p>Accept payments in 135+ currencies. Manage subscriptions, invoicing, and fraud detection from one platform. Built on Stripe, hardened by BlackRoad.</p>
+  <div class="hero-actions">
+    <a href="#pricing" class="cta-btn">Start Accepting Payments</a>
+    <a href="#docs" class="cta-btn-outline">Read the Docs</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<section>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-value gradient-text">135+</div>
+      <div class="stat-label">Currencies Supported</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value gradient-text">99.99%</div>
+      <div class="stat-label">Uptime SLA</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value gradient-text">&lt;200ms</div>
+      <div class="stat-label">Avg. Processing Time</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value gradient-text">PCI L1</div>
+      <div class="stat-label">Compliance Level</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES OVERVIEW -->
+<section id="features">
+  <div class="section-label">Features</div>
+  <div class="section-title">Everything you need to get paid.</div>
+  <div class="section-desc">One integration. Every payment method. Complete visibility into your revenue.</div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-icon">&#9889;</div>
+      <h3>Instant Checkout</h3>
+      <p>Pre-built, mobile-optimized checkout flows that convert. Apple Pay, Google Pay, and 25+ local methods out of the box. No iframes, no redirects, no friction.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128257;</div>
+      <h3>Recurring Billing</h3>
+      <p>Subscriptions with metered usage, tiered pricing, free trials, and proration. Dunning management handles failed payments automatically so you keep revenue flowing.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128196;</div>
+      <h3>Smart Invoicing</h3>
+      <p>Generate and send branded invoices with one API call. Auto-reminders, partial payments, and PDF export. Tax calculations built in for 40+ jurisdictions.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128737;</div>
+      <h3>Fraud Detection</h3>
+      <p>ML-powered fraud scoring on every transaction. Custom rules engine, 3D Secure handling, velocity checks, and device fingerprinting. Block bad actors, let good customers through.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#127760;</div>
+      <h3>Multi-Currency</h3>
+      <p>Present prices in your customer's currency, settle in yours. Dynamic currency conversion, automatic FX rate locking, and transparent fee breakdowns for 135+ currencies.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128202;</div>
+      <h3>Revenue Analytics</h3>
+      <p>Real-time dashboards for MRR, churn, LTV, and cohort analysis. Export to CSV or connect to your data warehouse. Know exactly where your money is, always.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE DEEP DIVES -->
+<section>
+  <div class="feature-row">
+    <div class="feature-content">
+      <div class="section-label">Subscriptions</div>
+      <h3>Recurring revenue, handled.</h3>
+      <p>From simple monthly plans to complex usage-based billing, RoadPay manages the full subscription lifecycle. Trials, upgrades, downgrades, cancellations, pauses -- all with a single API.</p>
+      <ul class="feature-list">
+        <li>Metered, tiered, flat-rate, and per-seat pricing models</li>
+        <li>Automatic proration on plan changes</li>
+        <li>Configurable retry logic with exponential backoff</li>
+        <li>Dunning emails that actually recover revenue (38% avg recovery)</li>
+        <li>Webhooks for every lifecycle event</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div class="code-block" style="width:100%">
+        <span class="comment">// Create a subscription in 3 lines</span><br>
+        <span class="keyword">const</span> subscription = <span class="keyword">await</span> roadpay.<span class="func">subscriptions</span>.<span class="func">create</span>({<br>
+        &nbsp;&nbsp;customer: <span class="string">'cus_abc123'</span>,<br>
+        &nbsp;&nbsp;plan: <span class="string">'growth_monthly'</span>,<br>
+        &nbsp;&nbsp;trial_days: <span class="number">14</span>,<br>
+        &nbsp;&nbsp;payment_method: <span class="string">'pm_card_visa'</span><br>
+        });<br><br>
+        <span class="comment">// subscription.status === 'trialing'</span><br>
+        <span class="comment">// subscription.current_period_end === '2026-04-04'</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-row">
+    <div class="feature-content">
+      <div class="section-label">Invoicing</div>
+      <h3>Send invoices, get paid faster.</h3>
+      <p>Professional invoices generated automatically or on-demand. Your branding, your terms, your payment link. Customers pay with one click. No more chasing checks.</p>
+      <ul class="feature-list">
+        <li>Auto-generate from subscription charges</li>
+        <li>Custom line items, discounts, and tax overrides</li>
+        <li>Payment links embedded in every invoice</li>
+        <li>PDF + hosted invoice page for each customer</li>
+        <li>Automatic late payment reminders (3-touch sequence)</li>
+        <li>Partial and installment payment support</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div class="code-block" style="width:100%">
+        <span class="comment">// Generate + send an invoice</span><br>
+        <span class="keyword">const</span> invoice = <span class="keyword">await</span> roadpay.<span class="func">invoices</span>.<span class="func">create</span>({<br>
+        &nbsp;&nbsp;customer: <span class="string">'cus_abc123'</span>,<br>
+        &nbsp;&nbsp;items: [<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{ description: <span class="string">'Consulting — March'</span>, amount: <span class="number">5000_00</span> },<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{ description: <span class="string">'Travel expenses'</span>, amount: <span class="number">340_50</span> }<br>
+        &nbsp;&nbsp;],<br>
+        &nbsp;&nbsp;due_days: <span class="number">30</span>,<br>
+        &nbsp;&nbsp;auto_send: <span class="keyword">true</span><br>
+        });<br><br>
+        <span class="comment">// invoice.hosted_url → customer pays online</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-row">
+    <div class="feature-content">
+      <div class="section-label">Fraud Prevention</div>
+      <h3>Block fraud. Keep customers.</h3>
+      <p>Every transaction runs through our ML scoring pipeline. Combine Stripe Radar with custom rules you define. Adaptive thresholds learn your business and reduce false positives over time.</p>
+      <ul class="feature-list">
+        <li>Real-time risk scoring on every payment attempt</li>
+        <li>Custom rule builder: block by country, velocity, amount, device</li>
+        <li>3D Secure challenge flow handled automatically</li>
+        <li>Device fingerprinting and behavioral analytics</li>
+        <li>Chargeback protection and dispute management</li>
+        <li>Manual review queue for edge cases</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div class="code-block" style="width:100%">
+        <span class="comment">// Custom fraud rule</span><br>
+        <span class="keyword">await</span> roadpay.<span class="func">rules</span>.<span class="func">create</span>({<br>
+        &nbsp;&nbsp;name: <span class="string">'High-value new customer'</span>,<br>
+        &nbsp;&nbsp;conditions: [<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{ field: <span class="string">'amount'</span>, op: <span class="string">'>'</span>, value: <span class="number">500_00</span> },<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{ field: <span class="string">'customer.age_days'</span>, op: <span class="string">'<'</span>, value: <span class="number">7</span> }<br>
+        &nbsp;&nbsp;],<br>
+        &nbsp;&nbsp;action: <span class="string">'review'</span> <span class="comment">// 'allow' | 'review' | 'block'</span><br>
+        });<br><br>
+        <span class="comment">// Flags for manual review, not auto-decline</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section id="integrations">
+  <div class="section-label">Integrations</div>
+  <div class="section-title">Works with your stack.</div>
+  <div class="section-desc">Drop RoadPay into any framework. SDKs for every major language. Webhooks for everything.</div>
+
+  <div class="integrations">
+    <span class="integration-badge">Node.js</span>
+    <span class="integration-badge">Python</span>
+    <span class="integration-badge">Go</span>
+    <span class="integration-badge">Ruby</span>
+    <span class="integration-badge">PHP</span>
+    <span class="integration-badge">Rust</span>
+    <span class="integration-badge">Java</span>
+    <span class="integration-badge">.NET</span>
+    <span class="integration-badge">React</span>
+    <span class="integration-badge">Next.js</span>
+    <span class="integration-badge">Svelte</span>
+    <span class="integration-badge">Vue</span>
+    <span class="integration-badge">iOS Swift</span>
+    <span class="integration-badge">Android Kotlin</span>
+    <span class="integration-badge">Flutter</span>
+    <span class="integration-badge">WordPress</span>
+    <span class="integration-badge">Shopify</span>
+    <span class="integration-badge">Zapier</span>
+  </div>
+
+  <div class="grid-2" style="margin-top: 3rem;">
+    <div class="card">
+      <h3>Webhooks</h3>
+      <p>200+ event types. Retry with exponential backoff. Signature verification on every payload. Filter by event type to reduce noise. Test in sandbox mode before going live.</p>
+    </div>
+    <div class="card">
+      <h3>REST API</h3>
+      <p>Clean, versioned REST API with idempotency keys. Rate limiting with clear headers. Pagination cursors. Expand nested objects inline. Full OpenAPI 3.1 spec available.</p>
+    </div>
+    <div class="card">
+      <h3>CLI Tool</h3>
+      <p>Test payments from your terminal. Tail webhook events live. Trigger test charges and refunds. Manage API keys and webhook endpoints. Ship faster without touching the dashboard.</p>
+    </div>
+    <div class="card">
+      <h3>Embedded Components</h3>
+      <p>Drop-in React components for checkout, pricing tables, and customer portals. Styled to match your brand. No custom CSS needed. Accessible out of the box (WCAG 2.1 AA).</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section>
+  <div class="section-label">Comparison</div>
+  <div class="section-title">RoadPay vs. the rest.</div>
+  <div class="section-desc">We built on Stripe so you get reliability. We added what Stripe charges extra for.</div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>RoadPay</th>
+        <th>Stripe Direct</th>
+        <th>PayPal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>135+ currencies</td>
+        <td class="check">Included</td>
+        <td class="check">Included</td>
+        <td>25 currencies</td>
+      </tr>
+      <tr>
+        <td>Subscription management</td>
+        <td class="check">Built-in</td>
+        <td>Stripe Billing ($)</td>
+        <td>Limited</td>
+      </tr>
+      <tr>
+        <td>Fraud ML + custom rules</td>
+        <td class="check">Included</td>
+        <td>Radar ($0.05/txn)</td>
+        <td>Basic</td>
+      </tr>
+      <tr>
+        <td>Smart invoicing</td>
+        <td class="check">Included</td>
+        <td>Stripe Invoicing ($)</td>
+        <td>Included</td>
+      </tr>
+      <tr>
+        <td>Revenue analytics</td>
+        <td class="check">Real-time</td>
+        <td>Sigma ($)</td>
+        <td>Basic reports</td>
+      </tr>
+      <tr>
+        <td>Embedded UI components</td>
+        <td class="check">React/Vue/Svelte</td>
+        <td>Stripe Elements</td>
+        <td class="cross">None</td>
+      </tr>
+      <tr>
+        <td>CLI testing tool</td>
+        <td class="check">Included</td>
+        <td class="check">Included</td>
+        <td class="cross">None</td>
+      </tr>
+      <tr>
+        <td>Self-hostable</td>
+        <td class="check">Yes (sovereign)</td>
+        <td class="cross">No</td>
+        <td class="cross">No</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label">Pricing</div>
+  <div class="section-title">Simple, transparent pricing.</div>
+  <div class="section-desc">No hidden fees. No surprise charges. Scale up when you're ready.</div>
+
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="tier">Starter</div>
+      <div class="price">Free</div>
+      <div class="rate">2.9% + $0.30 / transaction</div>
+      <ul>
+        <li>Up to $10K monthly volume</li>
+        <li>Basic checkout integration</li>
+        <li>Email receipts</li>
+        <li>Standard fraud protection</li>
+        <li>Community support</li>
+        <li>Sandbox + test mode</li>
+        <li>1 team member</li>
+      </ul>
+      <a href="#" class="cta-btn-outline">Start Free</a>
+    </div>
+    <div class="price-card featured">
+      <div class="tier">Growth</div>
+      <div class="price">$29 <span>/month</span></div>
+      <div class="rate">2.5% + $0.25 / transaction</div>
+      <ul>
+        <li>Up to $100K monthly volume</li>
+        <li>Subscription billing</li>
+        <li>Smart invoicing</li>
+        <li>Advanced fraud rules</li>
+        <li>Revenue analytics dashboard</li>
+        <li>Webhook management</li>
+        <li>5 team members</li>
+        <li>Email + chat support</li>
+      </ul>
+      <a href="#" class="cta-btn">Start Growth Plan</a>
+    </div>
+    <div class="price-card">
+      <div class="tier">Business</div>
+      <div class="price">$99 <span>/month</span></div>
+      <div class="rate">2.2% + $0.20 / transaction</div>
+      <ul>
+        <li>Up to $1M monthly volume</li>
+        <li>Everything in Growth</li>
+        <li>Multi-currency settlement</li>
+        <li>Custom fraud ML models</li>
+        <li>Data warehouse export</li>
+        <li>Embedded UI components</li>
+        <li>20 team members</li>
+        <li>Priority support (4hr SLA)</li>
+      </ul>
+      <a href="#" class="cta-btn-outline">Start Business</a>
+    </div>
+    <div class="price-card">
+      <div class="tier">Enterprise</div>
+      <div class="price">Custom</div>
+      <div class="rate">Volume-based pricing</div>
+      <ul>
+        <li>Unlimited volume</li>
+        <li>Everything in Business</li>
+        <li>Dedicated account manager</li>
+        <li>Custom SLA (99.99%+)</li>
+        <li>Self-hosted deployment option</li>
+        <li>SOC 2 Type II report access</li>
+        <li>Unlimited team members</li>
+        <li>24/7 phone + Slack support</li>
+        <li>On-premise installation</li>
+      </ul>
+      <a href="#" class="cta-btn-outline">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- DOCS PREVIEW -->
+<section id="docs">
+  <div class="section-label">Developer Experience</div>
+  <div class="section-title">Ship payments in minutes.</div>
+  <div class="section-desc">Copy, paste, deploy. Our SDK handles the hard parts.</div>
+
+  <div class="grid-2">
+    <div class="code-block">
+      <span class="comment"># Install the SDK</span><br>
+      npm install @roadpay/sdk<br><br>
+      <span class="comment"># Or use the CLI</span><br>
+      npx roadpay init my-project<br>
+      npx roadpay listen <span class="comment"># tail webhooks live</span><br>
+      npx roadpay trigger payment_intent.succeeded
+    </div>
+    <div class="code-block">
+      <span class="comment">// Accept a payment (Node.js)</span><br>
+      <span class="keyword">import</span> { RoadPay } <span class="keyword">from</span> <span class="string">'@roadpay/sdk'</span>;<br><br>
+      <span class="keyword">const</span> rp = <span class="keyword">new</span> <span class="func">RoadPay</span>(<span class="string">'rp_live_...'</span>);<br><br>
+      <span class="keyword">const</span> payment = <span class="keyword">await</span> rp.<span class="func">charges</span>.<span class="func">create</span>({<br>
+      &nbsp;&nbsp;amount: <span class="number">4999</span>,<br>
+      &nbsp;&nbsp;currency: <span class="string">'usd'</span>,<br>
+      &nbsp;&nbsp;source: <span class="string">'tok_visa'</span>,<br>
+      &nbsp;&nbsp;description: <span class="string">'Pro plan — March 2026'</span><br>
+      });<br><br>
+      <span class="comment">// payment.status === 'succeeded'</span>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top: 2rem;">
+    <div class="card">
+      <h3>Quick Start Guide</h3>
+      <p>From zero to first payment in under 5 minutes. Step-by-step for Node, Python, Go, Ruby, and PHP.</p>
+    </div>
+    <div class="card">
+      <h3>API Reference</h3>
+      <p>Every endpoint documented with request/response examples. Try calls live in the browser. Full OpenAPI 3.1 spec.</p>
+    </div>
+    <div class="card">
+      <h3>Migration Guide</h3>
+      <p>Moving from Stripe direct, PayPal, or Square? Our migration tool handles customer + subscription import automatically.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section>
+  <div class="section-label">Security</div>
+  <div class="section-title">Built for trust.</div>
+  <div class="section-desc">Your customers' payment data is sacred. We treat it that way.</div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>PCI DSS Level 1</h3>
+      <p>The highest level of payment security certification. Annual audits by a Qualified Security Assessor. Card data never touches your servers.</p>
+    </div>
+    <div class="card">
+      <h3>End-to-End Encryption</h3>
+      <p>TLS 1.3 in transit. AES-256 at rest. Hardware Security Modules for key management. Your data is encrypted from browser to vault.</p>
+    </div>
+    <div class="card">
+      <h3>SOC 2 Type II</h3>
+      <p>Independent verification of our security controls, availability, and data handling practices. Report available to Enterprise customers.</p>
+    </div>
+    <div class="card">
+      <h3>Data Residency</h3>
+      <p>Choose where your data lives. US, EU, or APAC regions. Meet GDPR, CCPA, and local data sovereignty requirements.</p>
+    </div>
+    <div class="card">
+      <h3>Role-Based Access</h3>
+      <p>Fine-grained permissions for every team member. API key scoping by resource type and action. Full audit log of every access.</p>
+    </div>
+    <div class="card">
+      <h3>Incident Response</h3>
+      <p>24/7 security monitoring. Sub-15-minute response time. Transparent incident communication. Bug bounty program for researchers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP PREVIEW -->
+<section id="roadmap">
+  <div class="section-label">Roadmap</div>
+  <div class="section-title">What's coming next.</div>
+  <div class="section-desc">We ship weekly. Here's what's on deck.</div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="date">Q1 2026</div>
+      <h4>Embedded Checkout Components</h4>
+      <p>Drop-in React, Vue, and Svelte components. Pre-styled, accessible, customizable. One line to add a complete checkout flow.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Q2 2026</div>
+      <h4>Usage-Based Billing Engine</h4>
+      <p>Metered billing with real-time usage tracking. Aggregate, transform, and bill on any metric. Perfect for API companies and SaaS.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Q3 2026</div>
+      <h4>RoadCoin Integration</h4>
+      <p>Accept RoadCoin alongside fiat. Automatic conversion. Settle in your preferred currency. Bridge crypto and traditional payments.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="date">Q4 2026</div>
+      <h4>Self-Hosted Sovereign Mode</h4>
+      <p>Run RoadPay on your own infrastructure. Full data sovereignty. Same API, same features, your servers. Docker + Kubernetes deployment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="section-label">FAQ</div>
+  <div class="section-title">Common questions.</div>
+
+  <div class="faq-item">
+    <h4>How is RoadPay different from using Stripe directly?</h4>
+    <p>RoadPay is built on Stripe's infrastructure but bundles features that Stripe charges separately for: subscription management, fraud ML, invoicing, and revenue analytics. You get one integration instead of assembling pieces. Plus, we offer a self-hosted option Stripe never will.</p>
+  </div>
+  <div class="faq-item">
+    <h4>Can I migrate from Stripe / PayPal / Square?</h4>
+    <p>Yes. Our migration tool imports customers, payment methods, and active subscriptions. Most migrations complete in under an hour with zero downtime. We handle the re-tokenization.</p>
+  </div>
+  <div class="faq-item">
+    <h4>What happens if I exceed my plan's volume?</h4>
+    <p>Nothing breaks. You'll get a notification and we'll suggest upgrading. We never block transactions. You just pay the next tier's per-transaction rate on overages until you upgrade.</p>
+  </div>
+  <div class="faq-item">
+    <h4>Is there a contract or commitment?</h4>
+    <p>No. Month-to-month on all plans. Cancel anytime. Enterprise plans can optionally lock in annual pricing for a discount, but it's never required.</p>
+  </div>
+  <div class="faq-item">
+    <h4>Do you handle tax calculation?</h4>
+    <p>Yes. Built-in tax calculation for 40+ jurisdictions including US sales tax, EU VAT, and Canadian GST/HST. Automatic tax ID validation for B2B reverse charges.</p>
+  </div>
+  <div class="faq-item">
+    <h4>What about chargebacks?</h4>
+    <p>Our fraud prevention reduces chargebacks significantly. When they do happen, we provide automated evidence submission and dispute management. Business and Enterprise plans include chargeback protection insurance.</p>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <h2>Start accepting payments <span class="gradient-text">today.</span></h2>
+  <p>Free to start. No credit card required. First $10K in transactions on us.</p>
+  <div class="hero-actions" style="justify-content: center;">
+    <a href="#" class="cta-btn">Create Free Account</a>
+    <a href="#" class="cta-btn-outline">Talk to Sales</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="https://blackroad.io">BlackRoad OS</a>
+    <a href="#docs">Documentation</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#">Status</a>
+    <a href="#">Changelog</a>
+    <a href="#">Security</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+  <p>BlackRoad OS, Inc. All rights reserved. RoadPay is a product of BlackRoad OS.</p>
+  <p style="margin-top: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">Remember the Road. Pave Tomorrow.</p>
+</footer>
+
+</body>
+</html>
