@@ -1,5 +1,13 @@
 # roadpay
 
+> RoadPay — BlackRoad OS billing system. D1 subscriptions, plans, invoices. Stripe as card processor.
+
+Part of the [BlackRoad OS](https://blackroad.io) ecosystem — [BlackRoad-OS-Inc](https://github.com/BlackRoad-OS-Inc)
+
+---
+
+# roadpay
+
 RoadPay — BlackRoad OS billing system. D1 subscriptions, plans, invoices. Stripe as card processor.
 
 **BlackRoad-OS-Inc** — Corporate root — all IP and governance
